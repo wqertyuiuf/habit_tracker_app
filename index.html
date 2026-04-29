@@ -4,8 +4,246 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Трекер привычек</title>
-    <link rel="stylesheet" href="style.css?v=3">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fa;
+            color: #1e293b;
+            padding: 20px 16px 32px;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f172a;
+                color: #e2e8f0;
+            }
+            .habit-card, .stats, .modal-content {
+                background: #1e293b !important;
+                color: #e2e8f0;
+            }
+            .habit-name {
+                color: #f1f5f9;
+            }
+            .habit-streak {
+                color: #94a3b8;
+            }
+            .empty-state {
+                color: #94a3b8;
+            }
+            input {
+                background: #0f172a;
+                color: #e2e8f0;
+                border-color: #334155;
+            }
+        }
+        .app {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .add-btn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 40px;
+            font-size: 28px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .add-btn:active {
+            transform: scale(0.96);
+        }
+        .habits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .habit-card {
+            background: white;
+            border-radius: 24px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        .habit-info {
+            flex: 1;
+        }
+        .habit-name {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+        .habit-streak {
+            font-size: 13px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .habit-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .complete-btn {
+            background: #e2e8f0;
+            color: #1e293b;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .complete-btn.completed {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: white;
+        }
+        .counter-btn {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #ef4444;
+            opacity: 0.6;
+        }
+        .stats {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .stats h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        #statsContent {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.5;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            width: 85%;
+            max-width: 340px;
+            border-radius: 32px;
+            padding: 24px;
+            position: relative;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96);}
+            to { opacity: 1; transform: scale(1);}
+        }
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 16px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 14px;
+            margin: 16px 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 40px;
+            font-size: 16px;
+            background: #f8fafc;
+        }
+        .modal-content button {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+            background: rgba(255,255,255,0.5);
+            border-radius: 32px;
+            font-size: 15px;
+        }
+        .habit-type-group {
+            margin: 16px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .type-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .type-option input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: #3b82f6;
+        }
+    </style>
 </head>
 <body>
     <div class="app">
@@ -22,13 +260,12 @@
         </div>
     </div>
 
-    <!-- Модальное окно с выбором типа -->
+    <!-- Модальное окно -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Новая привычка</h3>
             <input type="text" id="habitNameInput" placeholder="Например: Читать 30 минут" maxlength="50">
-            
             <div class="habit-type-group">
                 <label class="type-option">
                     <input type="radio" name="habitType" value="simple" checked> 
@@ -39,11 +276,202 @@
                     <span>🔥 Счётчик дней (например, бросить курить)</span>
                 </label>
             </div>
-            
             <button id="saveHabitBtn">Добавить</button>
         </div>
     </div>
 
-    <script src="script.js?v=3"></script>
+    <script>
+        // Тот же самый script.js, который был ранее (с поддержкой counter)
+        // Я скопирую его сюда, чтобы всё было в одном файле и точно работало
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.hide();
+
+        let habits = [];
+        const habitsList = document.getElementById('habitsList');
+        const statsContent = document.getElementById('statsContent');
+        const modal = document.getElementById('modal');
+        const habitNameInput = document.getElementById('habitNameInput');
+        const addHabitBtn = document.getElementById('addHabitBtn');
+        const saveHabitBtn = document.getElementById('saveHabitBtn');
+        const closeModalSpan = document.querySelector('.close');
+
+        function getToday() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function calculateStreak(dates) {
+            if (!dates.length) return 0;
+            const sorted = [...dates].sort().reverse();
+            const today = getToday();
+            if (!sorted.includes(today)) return 0;
+            let streak = 1;
+            let expectedDate = new Date(today);
+            for (let i = 1; i < sorted.length; i++) {
+                const prevDate = new Date(sorted[i-1]);
+                const currDate = new Date(sorted[i]);
+                const diffDays = (prevDate - currDate) / (1000 * 60 * 60 * 24);
+                if (diffDays === 1) streak++;
+                else break;
+            }
+            return streak;
+        }
+
+        function saveHabits() {
+            localStorage.setItem('habits', JSON.stringify(habits));
+            renderHabits();
+        }
+
+        function sendToBot(action, data) {
+            if (tg.initDataUnsafe?.user) {
+                tg.sendData(JSON.stringify({ action, ...data }));
+            }
+        }
+
+        function renderHabits() {
+            if (!habits.length) {
+                habitsList.innerHTML = '<div class="empty-state">➕ Добавьте первую привычку</div>';
+                updateStats();
+                return;
+            }
+            let html = '';
+            habits.forEach((habit, idx) => {
+                const today = getToday();
+                let rightContent = '';
+                if (habit.type === 'simple') {
+                    const completedToday = habit.completedDates?.includes(today);
+                    rightContent = `<button class="complete-btn ${completedToday ? 'completed' : ''}" data-idx="${idx}">${completedToday ? '✓ Выполнено' : '✔ Отметить'}</button>`;
+                } else if (habit.type === 'counter') {
+                    const alreadyMarked = habit.counterDates?.includes(today);
+                    const streak = habit.streak || 0;
+                    rightContent = `
+                        <div class="habit-streak" style="margin-right:12px;">🔥 <span class="streak-value" style="font-weight:800;">${streak}</span> дней</div>
+                        <button class="counter-btn" data-idx="${idx}" ${alreadyMarked ? 'disabled style="opacity:0.5;"' : ''}>${alreadyMarked ? '✅ Отмечено' : '+1 день без срыва'}</button>
+                    `;
+                }
+                html += `
+                    <div class="habit-card" data-idx="${idx}">
+                        <div class="habit-info">
+                            <div class="habit-name">${escapeHtml(habit.name)}${habit.type === 'counter' ? ' 🔥' : ''}</div>
+                        </div>
+                        <div class="habit-actions">
+                            ${rightContent}
+                            <button class="delete-btn" data-idx="${idx}">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+            habitsList.innerHTML = html;
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = habits.length;
+            const simpleCount = habits.filter(h => h.type === 'simple').length;
+            const counterCount = habits.filter(h => h.type === 'counter').length;
+            const todayMarkedSimple = habits.filter(h => h.type === 'simple' && h.completedDates?.includes(getToday())).length;
+            const totalCounterStreak = habits.filter(h => h.type === 'counter').reduce((sum, h) => sum + (h.streak || 0), 0);
+            statsContent.innerHTML = `📊 Всего привычек: ${total}<br>✅ Обычных: ${simpleCount} (выполнено сегодня: ${todayMarkedSimple})<br>🔥 Со счётчиком: ${counterCount} (всего дней без срыва: ${totalCounterStreak})`;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function addHabit(name, type) {
+            if (!name.trim()) return;
+            const newHabit = {
+                id: Date.now(),
+                name: name.trim(),
+                type: type,
+                completedDates: [],
+                counterDates: [],
+                streak: 0
+            };
+            habits.push(newHabit);
+            saveHabits();
+            sendToBot('add_habit', { habit_name: name, habit_type: type });
+        }
+
+        function toggleSimpleComplete(idx) {
+            const habit = habits[idx];
+            if (habit.type !== 'simple') return;
+            const today = getToday();
+            if (!habit.completedDates) habit.completedDates = [];
+            if (habit.completedDates.includes(today)) {
+                habit.completedDates = habit.completedDates.filter(d => d !== today);
+            } else {
+                habit.completedDates.push(today);
+            }
+            saveHabits();
+            sendToBot('toggle_simple', { habit_name: habit.name, date: today });
+        }
+
+        function markCounterDay(idx) {
+            const habit = habits[idx];
+            if (habit.type !== 'counter') return;
+            const today = getToday();
+            if (!habit.counterDates) habit.counterDates = [];
+            if (habit.counterDates.includes(today)) return;
+            habit.counterDates.push(today);
+            habit.streak = calculateStreak(habit.counterDates);
+            saveHabits();
+            sendToBot('counter_day', { habit_name: habit.name, date: today, streak: habit.streak });
+        }
+
+        function deleteHabit(idx) {
+            if (confirm('Удалить привычку?')) {
+                const deleted = habits.splice(idx, 1);
+                saveHabits();
+                sendToBot('delete_habit', { habit_name: deleted[0].name });
+            }
+        }
+
+        addHabitBtn.onclick = () => {
+            habitNameInput.value = '';
+            document.querySelector('input[name="habitType"][value="simple"]').checked = true;
+            modal.style.display = 'flex';
+        };
+        closeModalSpan.onclick = () => modal.style.display = 'none';
+        window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+        saveHabitBtn.onclick = () => {
+            const name = habitNameInput.value.trim();
+            if (!name) { alert('Введите название'); return; }
+            const type = document.querySelector('input[name="habitType"]:checked').value;
+            addHabit(name, type);
+            modal.style.display = 'none';
+        };
+        habitsList.addEventListener('click', (e) => {
+            const btn = e.target.closest('.complete-btn');
+            if (btn) { const idx = parseInt(btn.dataset.idx); if (!isNaN(idx)) toggleSimpleComplete(idx); return; }
+            const counterBtn = e.target.closest('.counter-btn');
+            if (counterBtn) { const idx = parseInt(counterBtn.dataset.idx); if (!isNaN(idx)) markCounterDay(idx); return; }
+            const delBtn = e.target.closest('.delete-btn');
+            if (delBtn) { const idx = parseInt(delBtn.dataset.idx); if (!isNaN(idx)) deleteHabit(idx); }
+        });
+
+        const saved = localStorage.getItem('habits');
+        if (saved) {
+            try {
+                let loaded = JSON.parse(saved);
+                loaded = loaded.map(h => {
+                    if (!h.type) h.type = 'simple';
+                    if (h.type === 'counter' && !h.counterDates) h.counterDates = [];
+                    if (h.type === 'counter') h.streak = calculateStreak(h.counterDates || []);
+                    if (h.type === 'simple' && !h.completedDates) h.completedDates = [];
+                    return h;
+                });
+                habits = loaded;
+            } catch(e) {}
+        }
+        habits.forEach(h => { if (h.type === 'counter') h.streak = calculateStreak(h.counterDates || []); });
+        saveHabits();
+        tg.ready();
+    </script>
 </body>
 </html>
