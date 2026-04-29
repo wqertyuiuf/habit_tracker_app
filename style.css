@@ -1,137 +1,28 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #f5f7fa;  /* светлый фон */
-    color: #1e293b;
-    padding: 20px 16px 32px;
-}
-
-/* Тёмная тема Telegram – автоматически подстраивается, если нужно */
-@media (prefers-color-scheme: dark) {
-    body {
-        background: #0f172a;
-        color: #e2e8f0;
-    }
-    .habit-card, .stats, .modal-content {
-        background: #1e293b !important;
-        color: #e2e8f0;
-    }
-    .habit-name {
-        color: #f1f5f9;
-    }
-    .habit-streak {
-        color: #94a3b8;
-    }
-    .empty-state {
-        color: #94a3b8;
-    }
-    input {
-        background: #0f172a;
-        color: #e2e8f0;
-        border-color: #334155;
-    }
-}
-
-.app {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 24px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #e2e8f0;
-}
-
-.header h1 {
-    font-size: 32px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
-.add-btn {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    color: white;
-    border: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 40px;
-    font-size: 28px;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(59,130,246,0.3);
-    transition: transform 0.1s, box-shadow 0.2s;
-}
-.add-btn:active {
-    transform: scale(0.96);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.habits-list {
+/* Дополнительные стили для выбора типа привычки */
+.habit-type-group {
+    margin: 16px 0;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin-bottom: 32px;
-}
-
-.habit-card {
-    background: white;
-    backdrop-filter: blur(2px);
-    border-radius: 24px;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-    transition: all 0.2s;
-}
-.habit-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-}
-
-.habit-info {
-    flex: 1;
-}
-
-.habit-name {
-    font-weight: 600;
-    font-size: 18px;
-    margin-bottom: 6px;
-}
-
-.habit-streak {
-    font-size: 13px;
-    color: #64748b;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.habit-streak::before {
-    content: "🔥";
-    font-size: 14px;
-}
-
-.habit-actions {
-    display: flex;
     gap: 12px;
-    align-items: center;
 }
-
-.complete-btn {
-    background: #e2e8f0;
-    color: #1e293b;
+.type-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 6px 0;
+}
+.type-option input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: #3b82f6;
+}
+/* Стиль для кнопки счетчика */
+.counter-btn {
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 40px;
@@ -140,116 +31,12 @@ body {
     cursor: pointer;
     transition: all 0.2s;
 }
-.complete-btn.completed {
-    background: linear-gradient(135deg, #10b981, #34d399);
-    color: white;
-    box-shadow: 0 2px 8px rgba(16,185,129,0.3);
-}
-.complete-btn:active {
+.counter-btn:active {
     transform: scale(0.96);
 }
-
-.delete-btn {
-    background: none;
-    border: none;
-    font-size: 22px;
-    cursor: pointer;
-    color: #ef4444;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-}
-.delete-btn:hover {
-    opacity: 1;
-}
-
-.stats {
-    background: white;
-    border-radius: 24px;
-    padding: 20px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-}
-.stats h2 {
-    font-size: 20px;
-    margin-bottom: 8px;
-    font-weight: 600;
-}
-#statsContent {
-    font-size: 14px;
-    color: #475569;
-    line-height: 1.5;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background: white;
-    width: 85%;
-    max-width: 340px;
-    border-radius: 32px;
-    padding: 24px;
-    position: relative;
-    animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.96);}
-    to { opacity: 1; transform: scale(1);}
-}
-
-.close {
-    position: absolute;
-    right: 20px;
-    top: 16px;
-    font-size: 28px;
-    cursor: pointer;
-    color: #94a3b8;
-}
-.modal-content input {
-    width: 100%;
-    padding: 14px;
-    margin: 16px 0;
-    border: 1px solid #cbd5e1;
-    border-radius: 40px;
+.habit-streak .streak-value {
+    font-weight: 800;
     font-size: 16px;
-    background: #f8fafc;
-    transition: 0.2s;
-}
-.modal-content input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
-}
-.modal-content button {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: 40px;
-    width: 100%;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.1s;
-}
-.modal-content button:active {
-    transform: scale(0.98);
-}
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #64748b;
-    background: rgba(255,255,255,0.5);
-    border-radius: 32px;
-    font-size: 15px;
+    margin-left: 4px;
+    color: #f59e0b;
 }
