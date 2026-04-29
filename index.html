@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Трекер привычек</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -22,16 +22,28 @@
         </div>
     </div>
 
-    <!-- Модальное окно добавления привычки -->
+    <!-- Модальное окно с выбором типа -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>Новая привычка</h3>
             <input type="text" id="habitNameInput" placeholder="Например: Читать 30 минут" maxlength="50">
+            
+            <div class="habit-type-group">
+                <label class="type-option">
+                    <input type="radio" name="habitType" value="simple" checked> 
+                    <span>✅ Обычная (отметка на сегодня)</span>
+                </label>
+                <label class="type-option">
+                    <input type="radio" name="habitType" value="counter"> 
+                    <span>🔥 Счётчик дней (например, бросить курить)</span>
+                </label>
+            </div>
+            
             <button id="saveHabitBtn">Добавить</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>
