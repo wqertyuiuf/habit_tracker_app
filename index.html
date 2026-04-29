@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Трекер привычек</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>Привычки</h1>
+            <button class="add-habit-btn" onclick="showAddHabitModal()">+</button>
+        </div>
+        
+        <div id="habits-list" class="habits-list">
+            <div class="empty-state">У вас пока нет привычек.<br>Нажмите +, чтобы добавить</div>
+        </div>
+
+        <div class="stats-section">
+            <h2>Статистика</h2>
+            <div id="stats-container"></div>
+            <button class="stats-btn" onclick="getStatistics()">Обновить статистику</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно для добавления привычки -->
+    <div id="addHabitModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Добавить привычку</h2>
+            <input type="text" id="habitName" placeholder="Название привычки" maxlength="50">
+            <button onclick="addNewHabit()">Добавить</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
